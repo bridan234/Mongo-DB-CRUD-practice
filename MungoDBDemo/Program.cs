@@ -1,10 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System;
 
 namespace MungoDBDemo
 {
@@ -60,86 +54,6 @@ namespace MungoDBDemo
 
             db.DeleteRecord<CustomerEntity>("Customer_Profile", c => c.CustId == Id);
                 //Console.ReadLine();
-        }
-    }
-
-    public class Mongo_CRUD
-    {
-        private readonly IMongoDatabase db;
-
-        public Mongo_CRUD(string database)
-        {
-            var client = new MongoClient();
-            db = client.GetDatabase(database);
-        }
-
-        public void InsertRecord<TEntity>(string Entity, TEntity Data) where TEntity : class
-        {
-            var collection = db.GetCollection<TEntity>(Entity);
-            collection.InsertOne(Data);
-        }
-
-        public List<TEntity> GetAll<TEntity>(string Entity)
-        {
-            var Collection = db.GetCollection<TEntity>(Entity);
-
-            return Collection.Find(new BsonDocument()).ToList();
-        }
-
-        public TEntity GetSingle<TEntity>(string Entity, Func<TEntity, bool> ConditionIsTrue)
-        {
-            
-            return GetAll<TEntity>(Entity).Where(ConditionIsTrue).FirstOrDefault();
-        }
-
-        public void UpSertRecord<TEntity>(string Entity, TEntity Data, Expression<Func<TEntity, bool>> ConditionIsTrue)
-            // this method Updates a record if exists else create nee record
-        {
-            var collection = db.GetCollection<TEntity>(Entity);
-            collection.ReplaceOne(Builders<TEntity>.Filter.Where(ConditionIsTrue), Data, new ReplaceOptions { IsUpsert = true });
-        }
-
-        public void UpdateField<TEntity>(string Entity, BsonDocument Data, Expression<Func<TEntity, bool>> ConditionIsTrue)
-        // this method Updates a record if exists else create nee record
-        {
-            var collection = db.GetCollection<TEntity>(Entity);
-           
-            collection.UpdateOne(Builders<TEntity>.Filter.Where(ConditionIsTrue), Data);
-        }
-
-        public void DeleteRecord<TEntity>(string Entity, Expression<Func<TEntity, bool>> ConditionIsTrue)
-        // this method Updates a record if exists else create nee record
-        {
-            var collection = db.GetCollection<TEntity>(Entity);
-
-            var result = collection.DeleteOne(Builders<TEntity>.Filter.Where(ConditionIsTrue));
-        }
-    }
-
-   
-    public class CustomerEntity
-    {
-        [BsonId]
-        public Guid CustId { get; set; }
-        public string FirstName { get; set; }
-        public string LasName { get; set; }
-
-        
-    }
-
-    public class OrdersEntity
-    {
-        [BsonId]
-        public Guid OrderId { get; set; }
-        
-        public CustomerEntity Customer { get; set; }
-        public string Product { get; set; }
-        public double UnitPrice { get; set; } 
-        public int Quantity { get; set; }
-        public double TotalPrice { get; set; }
-        public double TotalPrize()
-        {
-            return UnitPrice * Quantity;
         }
     }
 }
